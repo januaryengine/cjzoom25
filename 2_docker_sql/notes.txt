@@ -1,0 +1,77 @@
+Docker commands:
+for compiling:
+    docker build -t NAME_of_container WHERE_you_want_it_to_go
+    eg
+        docker build -t testdocker .
+
+for running:
+    docker run -it testdocker 
+    docker run -it testdocker <any args you want to add>
+
+To run a postgres container from command line:
+    docker run -it \
+      -e POSTGRES_USER="root" \
+      -e POSTGRES_PASSWORD="root"\
+      -e POSTGRES_DB="ny_taxi" \
+      -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data \
+      -p 5432:5432 \
+      postgres:13
+
+      docker run -it -e POSTGRES_USER="root" -e POSTGRES_PASSWORD="root" -e POSTGRES_DB="ny_taxi" -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data postgres:13
+
+ docker run -it -e POSTGRES_USER="root" -e POSTGRES_PASSWORD="root" -e POSTGRES_DB="ny_taxi" -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data --network=pg-network --name=pg-database postgres:13
+
+
+(We need to have created a netwo
+rk and a volume first)
+docker network create pg-network
+docker volume create --name dtc_postgres_volume_local -d local
+
+ docker run -it -e POSTGRES_USER="root" -e POSTGRES_
+PASSWORD="root" -e POSTGRES_DB="ny_taxi" -v dtc_postgres_volume_local:/var/lib/postgresql/data -p 5432:5432 --n
+etwork=pg-network --name pgdatabase postgres:13
+
+
+
+
+To access database once container is running:
+
+    pgcli -h localhost -p 5432 -u root -d ny_taxi              (pip install pgcli if you have it already)
+
+    docker run -it -e=PGADMIN_DEFAULT_EMAIL="admin@admin.com" -e PGADMIN_DEFAULT_PASSWORD="root"  -p:8080:80  --network=pg-network --name pgadmin dpage/pgadmin4
+
+docker run -it -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" -e PGADMIN_DEFAULT_PASSWORD="root" -e PGADMIN_CONFIG_WTF_CSRF_ENABLED="False" -p 8080:80 --network=pg-network --volume=dtc_postgres_volume_local dpage/pgadmin4
+
+(
+https://datatalks-club.slack.com/archives/C01FABYF2RG/p1722420824115889?thread_ts=1722420815.185199&cid=C01FABYF2RG
+docker run --rm -it \
+    -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
+    -e PGADMIN_DEFAULT_PASSWORD="root" \
+    -e PGADMIN_CONFIG_WTF_CSRF_ENABLED="False" \
+    -p "8080:80" \
+    --name pgadmin \
+    --network=pg-network \
+    dpage/pgadmin4:8.2
+
+    "This change disables the CSRF protection in pgAdmin, 
+    which resolves the referrer mismatch issue."
+
+You need to use the NAME of the postgres database for the connection, 
+in our case that is pgdatabase 
+
+
+
+
+
+
+)
+
+( didnt work but maybe helpful
+Proposed solution to problems:
+    1. docker network create [INSERT_NETWORK_NAME]
+    2. docker network connect [INSERT_NETWORK_NAME] [INSERT_PGADMIN_CONTAINER_NAME]
+    3. docker network connect [INSERT_NETWORK_NAME] [INSERT_PGDATABASE_CONTAINER_NAME]  )
+
+
+    I cannot upload to Github because of permissions error. https://datatalks-club.slack.com/archives/C01FABYF2RG/p1732699526301239?thread_ts=1732574102.886989&cid=C01FABYF2RG
+    
